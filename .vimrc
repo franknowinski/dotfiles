@@ -52,7 +52,11 @@ Plugin 'vim-ruby/vim-ruby'
 Plugin 'vim-syntastic/syntastic'
 Plugin 'vimwiki/vimwiki'
 Plugin 'junegunn/fzf', { 'do': { -> fzf#install()  }  }
+Plugin 'easymotion/vim-easymotion'
+Plugin 'MaxMEllon/vim-jsx-pretty'
 Plugin 'junegunn/fzf.vim'
+Plugin 'haishanh/night-owl.vim'
+"Plugin 'neoclide/coc.nvim', {'branch': 'release'}
 "Plugin 'wincent/command-t'
 Plugin 'prettier/vim-prettier', {
   \ 'do': 'yarn install',
@@ -60,6 +64,10 @@ Plugin 'prettier/vim-prettier', {
 
 call vundle#end()
 filetype plugin indent on
+
+" Prettier
+let g:prettier#autoformat = 0
+autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md PrettierAsync
 
 " Syntax
 syntax on
@@ -70,6 +78,16 @@ set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
 
+" Vim Easy Motion
+map <leader>/ <Plug>(easymotion-bd-w)
+nmap <Leader>/ <Plug>(easymotion-overwin-w)
+nmap s <Plug>(easymotion-overwin-f2)
+map  / <Plug>(easymotion-sn)
+omap / <Plug>(easymotion-tn)
+map  n <Plug>(easymotion-next)
+map  N <Plug>(easymotion-prev)
+
+let g:EasyMotion_smartcase = 1
 
 " Map Leader
 let mapleader = ","
@@ -80,6 +98,7 @@ let g:airline#extensions#tabline#enabled = 0
 let g:jsx_ext_required = 0
 
 let g:airline_theme='luna'
+"let g:airline_theme='wombat'
 let &t_AB="\e[48;5;%dm"
 let &t_AF="\e[38;5;%dm"
 let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
@@ -116,6 +135,19 @@ set relativenumber
 set path=$PWD/**
 set exrc
 
+ " For night-owl color scheme
+ "if (has("termguicolors"))
+   "set termguicolors
+ "endif
+ if exists('+termguicolors')
+  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+  set termguicolors
+endif
+
+syntax enable
+colorscheme night-owl
+
 " Exclude included files with vim autocomplete
 set complete-=i
 
@@ -146,8 +178,6 @@ imap ppp binding.pry
 nmap ppp yiwoppp
 imap dgr debugger
 nmap dgr yiwodgr
-imap iee IEx.pry
-nmap iee yiwoiee
 imap ppb <%= binding.pry %>
 nmap ppb ywippb
 
@@ -169,7 +199,7 @@ cnoremap <C-a> <C-b>
 map \ :NERDTreeToggle<CR>
 map \| :NERDTreeFind<CR>
 map <leader>rt :!~/.vim/bin/update_ctags 2>/dev/null &<CR>
-map <leader>g :Gblame<CR>
+map <leader>g :Git blame<CR>
 nmap <space>b <c-^>
 nmap <space>w :w<cr>
 nmap <space>q :q!<cr>
@@ -235,10 +265,17 @@ map <leader>\ :vsplit<cr>
 " Prettier
 map <leader>p :PrettierAsync<cr>
 
+" Replace word under cursor with buffer
+nmap <space>r viw"0p
+
+" Copy word under cursor into buffer
+nmap <space>c yiw
+
 autocmd BufWritePre * :%s/\s\+$//e
 autocmd VimResized * :wincmd =
 au VimEnter * highlight clear SignColumn
 imap <expr> <tab> emmet#expandAbbrIntelligent("\<tab>")
+let g:user_emmet_leader_key=","
 
 " Rename Current File
 function! RenameFile()
@@ -288,7 +325,7 @@ xmap ga <Plug>(EasyAlign)
 nmap ga <Plug>(EasyAlign)"
 
 let g:test#strategy = 'vimux'
-let test#project_root = '~/Projects/tc-www/app/javascript_apps/'
+"let test#project_root = '~/Projects/tc-www/app/javascript_apps/'
 let g:test#javascript#jest#file_pattern = '.*\.spec\.js'
 
 nmap <space>t :w<cr> :TestNearest<CR>
@@ -357,21 +394,21 @@ map <leader>sD :Rag <c-r>=expand("<cword>")<cr> db/<cr>
 map <leader>sf :Rag <c-r>=expand("<cword>")<cr> spec/support/factories<cr>
 map <leader>sd :Rag <c-r>=expand("<cword>")<cr> %%<cr>
 
-map <space>aa :Ag<space>
-map <space>sa :Ag<space>app/<C-Left><Left>
-map <space>sm :Ag<space>app/models/<C-Left><Left>
-map <space>sc :Ag<space>app/controllers/<C-Left><Left>
-map <space>sv :Ag<space>app/views/<C-Left><Left>
-map <space>sh :Ag<space>app/helpers/<C-Left><Left>
-map <space>ss :Ag<space>app/services/<C-Left><Left>
-map <space>sw :Ag<space>app/workers/<C-Left><Left>
-map <space>sr :Ag<space>app/javascript_apps/<C-Left><Left>
-map <space>se :Ag<space>app/services/distribution_system<C-Left><Left>
-map <space>sl :Ag<space>lib/<C-Left><Left>
-map <space>si :Ag<space>infra/<C-Left><Left>
-map <space>sp :Ag<space>public/<C-Left><Left>
-map <space>st :Ag<space>spec/<C-Left><Left>
-map <space>sC :Ag<space>config/<C-Left><Left>
-map <space>sD :Ag<space>db/<C-Left><Left>
-map <space>sf :Ag<space>spec/support/factories/<C-Left><Left>
-map <space>sd :Ag<space>%%<C-Left><Left>
+map <space>aa :Rag -i<space>
+map <space>sa :Rag -i <space>app/<C-Left><Left>
+map <space>sm :Rag -i <space>app/models/<C-Left><Left>
+map <space>sc :Rag -i <space>app/controllers/<C-Left><Left>
+map <space>sv :Rag -i <space>app/views/<C-Left><Left>
+map <space>sh :Rag -i <space>app/helpers/<C-Left><Left>
+map <space>ss :Rag -i <space>app/services/<C-Left><Left>
+map <space>sw :Rag -i <space>app/workers/<C-Left><Left>
+map <space>sr :Rag -i <space>app/javascript_apps/<C-Left><Left>
+map <space>se :Rag -i <space>app/services/distribution_system<C-Left><Left>
+map <space>sl :Rag -i <space>lib/<C-Left><Left>
+map <space>si :Rag -i <space>infra/<C-Left><Left>
+map <space>sp :Rag -i <space>public/<C-Left><Left>
+map <space>st :Rag -i <space>spec/<C-Left><Left>
+map <space>sC :Rag -i <space>config/<C-Left><Left>
+map <space>sD :Rag -i <space>db/<C-Left><Left>
+map <space>sf :Rag -i <space>spec/support/factories/<C-Left><Left>
+map <space>sd :Rag -i <space>%%<C-Left><Left>

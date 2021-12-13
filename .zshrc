@@ -23,19 +23,67 @@ plugins=(
   forgit # Add forgit to /.oh-my-zsh/plugins/
 )
 
+alias master='git co master && git pull origin master && git fetch'
+alias integration='git co integration && git pull origin integration && git fetch'
+alias amend='git commit --amend --no-edit'
+alias push='git push -f origin HEAD'
+alias gst="git status"
+alias diff="git diff"
+alias gco="git co"
+alias gadd="git add ."
+alias gcont="git rebase --continue"
+alias gpush="git push origin head"
+alias gpull="git pull origin --rebase"
+alias ci="git ci -m "
+alias grebase="git rebase -i origin/master"
+alias migrate="bundle exec rake db:migrate"
+alias tdev="tmux a -t dev"
+alias tkill="killall tmux"
+
+alias be="bundle exec"
+alias rc="bundle exec rails c"
+alias rs="bundle exec rails s"
+alias rspec='be rspec'
+alias gstash='git stash save'
+alias glist='git stash list'
+alias gpop='git stash pop'
+alias lss="ls -ltr"
+alias al="ls -al"
+alias ssh='TERM=xterm-256color ssh'
+alias Z='fg'
+
+regex () {
+  gawk 'match($0,/'$1'/, ary) {print ary['${2:-'0'}']}'
+}
+
+makepr() {
+  if [ ! -d .git ] ;
+    then echo "ERROR: This isnt a git directory" && return false;
+  fi
+  pwd | regex "tc-www" | grep "tc-www" | grep -v grep &> /dev/null
+  in_tcw=$?
+  pwd | regex "studio" | grep "studio" | grep -v grep &> /dev/null
+  in_studio=$?
+  pwd | regex "graph" | grep "graph" | grep -v grep &> /dev/null
+  in_graph=$?
+  if [[ $in_tcw == 0 ]] || [[ $in_studio == 0 ]] || [[ $in_graph == 0  ]]; then
+    compare="/compare/integration...";
+  else
+    compare="/compare/master...";
+  fi
+  expand="?expand=1"
+  branch=`git branch | grep \* | cut -d ' ' -f2-`
+  github_url="https://github.com/frankNowinski"
+  url=$github_url$(git_repo)$compare$branch$expand
+  open $url
+}
+
 source $ZSH/oh-my-zsh.sh
 
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
 # Preferred editor for local and remote sessions
-if [[ -n $SSH_CONNECTION ]]; then
-  export EDITOR='vim'
-else
-  export TERM=xterm
-fi
+#if [[ -n $SSH_CONNECTION ]]; then
+  #export TERM=xterm
+#fi
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 bindkey ',m' fzf-file-widget
@@ -45,71 +93,26 @@ export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :500 {}'"
 export FZF_ALT_C_COMMAND='fd --type d . --color=never'
 export FZF_DEFAULT_OPTS='
-  --height 75% --multi --reverse
+  --height 75% --multi
   --bind ctrl-f:page-down,ctrl-b:page-up
   --bind ctrl-p:abort
   --color=fg:-1,bg:-1,hl:#5fd7ff
   --color=fg+:-1,bg+:-1,hl+:#79e7fa
   --color=info:#87ff00,prompt:#ff76ff,pointer:#ff76ff
   --color=marker:#87ff00,spinner:#00c5c7,header:#00c5c7
+  --color=preview-fg:#87ff00
 '
 
 export PATH="$HOME/.rbenv/bin:$PATH"
 
 # Find in file
 fif() {
-    if [ ! "$#" -gt 0 ]; then echo "Need a string to search for!"; return 1; fi
-    local file
-    file="$(rga --max-count=1 --ignore-case --files-with-matches --no-messages "$@" | fzf-tmux +m --preview="rga --ignore-case --pretty --context 10 '"$@"' {}")" && open "$file"
+  if [ ! "$#" -gt 0 ]; then echo "Need a string to search for!"; return 1; fi
+  local file
+  file="$(rga --max-count=1 --ignore-case --files-with-matches --no-messages "$@" | fzf-tmux +m --preview="rga --ignore-case --pretty --context 10 '"$@"' {}")" && open "$file"
 }
 
-# Opening a file in vim
-fe() (
-  IFS=$'\n' files=($(fzf-tmux --query="$1" --multi --select-1 --exit-0))
-  [[ -n "$files"  ]] && ${EDITOR:-vim} "${files[@]}"
-)
-
-# Checkout branch
-fco() {
-  local branches branch
-  branches=$(git --no-pager branch -vv) &&
-  branch=$(echo "$branches" | fzf +m) &&
-  git checkout $(echo "$branch" | awk '{print $1}' | sed "s/.* //")
-}
-
-# Checkout branch with preview
-fco_preview() {
-  local tags branches target
-  branches=$(
-    git --no-pager branch --all \
-      --format="%(if)%(HEAD)%(then)%(else)%(if:equals=HEAD)%(refname:strip=3)%(then)%(else)%1B[0;34;1mbranch%09%1B[m%(refname:short)%(end)%(end)" \
-    | sed '/^$/d') || return
-  tags=$(
-    git --no-pager tag | awk '{print "\x1b[35;1mtag\x1b[m\t" $1}') || return
-  target=$(
-    (echo "$branches"; echo "$tags") |
-    fzf --no-hscroll --no-multi -n 2 \
-        --ansi --preview="git --no-pager log -150 --pretty=format:%s '..{2}'") || return
-  git checkout $(awk '{print $2}' <<<"$target" )
-}
-
-# Cd down into dir
-function cd() {
-  if [[ "$#" != 0 ]]; then
-    builtin cd "$@";
-    return
-  fi
-  while true; do
-    local lsd=$(echo ".." && ls -p | grep '/$' | sed 's;/$;;')
-    local dir="$(printf '%s\n' "${lsd[@]}" |
-      fzf --reverse --preview '
-          __cd_nxt="$(echo {})";
-          __cd_path="$(echo $(pwd)/${__cd_nxt} | sed "s;//;/;")";
-          echo $__cd_path;
-          echo;
-          ls -p --color=always "${__cd_path}";
-          ')"
-          [[ ${#dir} != 0 ]] || return 0
-          builtin cd "$dir" &> /dev/null
-        done
+# Checkout branch with fuzzy-finder
+cob() {
+  git co $(git branch | fzf)
 }
