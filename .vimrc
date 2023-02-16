@@ -251,9 +251,13 @@ nmap <leader>bs :Bsplit<cr>
 nmap <leader>br :e config/routes.rb<cr>
 
 " Open in GitHub
-nmap <leader>G :Gbrowse master:%<cr>
+" nmap <leader>G :Gbrowse master:%<cr>
 " Open PR in Github from Git Blame
+" nmap <space>G :Gbrowse <c-r><c-w><cr>
+
 nmap <space>G :Gbrowse <c-r><c-w><cr>
+" Open PR on line
+nmap <leader>G :.GBrowse <cr>
 
 " Sort
 vnoremap <leader>S :sort<cr>
