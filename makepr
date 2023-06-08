@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+
+require 'cgi'
+repo = `basename $(git rev-parse --show-toplevel)`.strip
+current_branch = `git rev-parse --abbrev-ref HEAD`.strip
+
+if repo == "front-end"
+  pr_template = File.exists?("../../PULL_REQUEST_TEMPLATE.md") ? File.read("../../PULL_REQUEST_TEMPLATE.md") : ""
+else
+  pr_template = File.exists?("./PULL_REQUEST_TEMPLATE.md") ? File.read("./PULL_REQUEST_TEMPLATE.md") : ""
+end
+
+clubhouse_id = current_branch.match(/\/sc-(\d*)\//)[1]
+
+pr_template.gsub!("XXXX", clubhouse_id)
+
+encoded_template = CGI.escape(pr_template)
+pr_url = "https://github.com/movableink/#{repo}/compare/#{current_branch}?body=#{encoded_template}"
+
+`open #{pr_url}`

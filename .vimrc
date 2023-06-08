@@ -15,14 +15,12 @@ Plugin 'christoomey/vim-tmux-runner'
 Plugin 'craigemery/vim-autotag'
 Plugin 'edkolev/tmuxline.vim'
 Plugin 'elixir-editors/vim-elixir'
-"Plugin 'epmatsw/ag.vim'
 Plugin 'godlygeek/tabular'
 Plugin 'janko-m/vim-test'
 Plugin 'jiangmiao/auto-pairs'
 Plugin 'junegunn/vim-easy-align'
 Plugin 'leafgarland/typescript-vim'
 Plugin 'majutsushi/tagbar'
-Plugin 'mattn/emmet-vim'
 Plugin 'mxw/vim-jsx'
 Plugin 'neomake/neomake'
 Plugin 'ngmy/vim-rubocop'
@@ -55,12 +53,19 @@ Plugin 'junegunn/fzf', { 'do': { -> fzf#install()  }  }
 Plugin 'easymotion/vim-easymotion'
 Plugin 'MaxMEllon/vim-jsx-pretty'
 Plugin 'junegunn/fzf.vim'
+Plugin 'joukevandermaas/vim-ember-hbs'
 Plugin 'haishanh/night-owl.vim'
-"Plugin 'neoclide/coc.nvim', {'branch': 'release'}
-"Plugin 'wincent/command-t'
+Plugin 'ptzz/lf.vim'
+Plugin 'dsawardekar/ember.vim'
+Plugin 'dsawardekar/portkey'
+Plugin 'AndrewRadev/ember_tools.vim'
+Plugin 'voldikss/vim-floaterm'
+Plugin 'neoclide/coc.nvim', {'branch': 'release'}
+Plugin 'airblade/vim-gitgutter'
+Plugin 'nullvoxpopuli/coc-ember', {'do': 'yarn install --frozen-lockfile'}
 Plugin 'prettier/vim-prettier', {
   \ 'do': 'yarn install',
-  \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue', 'yaml', 'html'] }
+  \ 'for': ['javascript', 'js', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue', 'yaml', 'html'] }
 
 call vundle#end()
 filetype plugin indent on
@@ -87,10 +92,30 @@ omap / <Plug>(easymotion-tn)
 map  n <Plug>(easymotion-next)
 map  N <Plug>(easymotion-prev)
 
+" GitGutter
+nmap ghp <Plug>(GitGutterPreviewHunk)
+
 let g:EasyMotion_smartcase = 1
 
 " Map Leader
 let mapleader = ","
+
+" coc key bindings
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? coc#_select_confirm() :
+      \ coc#expandableOrJumpable() ?
+      \ "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+
+    function! s:check_back_space() abort
+      let col = col('.') - 1
+      return !col || getline('.')[col - 1]  =~# '\s'
+    endfunction
+
+    let g:coc_snippet_next = '<tab>'
+
+nmap <leader>r :RuboCop -a<cr>
 
 " Airline
 let g:airline_powerline_fonts = 1
@@ -98,7 +123,6 @@ let g:airline#extensions#tabline#enabled = 0
 let g:jsx_ext_required = 0
 
 let g:airline_theme='luna'
-"let g:airline_theme='wombat'
 let &t_AB="\e[48;5;%dm"
 let &t_AF="\e[38;5;%dm"
 let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
@@ -114,7 +138,7 @@ set clipboard=unnamed
 set incsearch
 set hlsearch
 set ignorecase
-set tags=tags;/
+set tags=./tags;/,tags;/
 set tags+=gems.tags
 set noswapfile
 set expandtab
@@ -131,19 +155,23 @@ set scrolloff=4
 set noesckeys
 set ttimeout
 set ttimeoutlen=1
-set relativenumber
 set path=$PWD/**
 set exrc
+set secure
+"set relativenumber
 
  " For night-owl color scheme
- "if (has("termguicolors"))
-   "set termguicolors
- "endif
+ if (has("termguicolors"))
+   set termguicolors
+ endif
  if exists('+termguicolors')
   let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
   let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
   set termguicolors
 endif
+" Cursor is line in insert mode
+let &t_SI = "\e[6 q"
+let &t_EI = "\e[2 q"
 
 syntax enable
 colorscheme night-owl
@@ -164,10 +192,6 @@ nnoremap <leader>1 <C-w>_<cr>
 nnoremap <leader>2 <C-w>\|<cr>
 nnoremap <leader>3 <C-w>=<cr>
 
-" Bash
-""nmap <space>z :!
-""imap <space>z :!
-
 " Find and replace in file
 nmap <space>F :%s/<c-r><c-w>//g<left><left>
 
@@ -180,6 +204,8 @@ imap dgr debugger
 nmap dgr yiwodgr
 imap ppb <%= binding.pry %>
 nmap ppb ywippb
+imap zpa await this.pauseTest();
+nmap zpa await this.pauseTest();
 
 " Deleting
 nnoremap <leader>d "_d
@@ -214,21 +240,28 @@ nmap <leader>fs :%s/'/"/g<cr>
 nmap <leader>fS :%s/"/'/g<cr>
 map <leader>m :CommandTMRU<CR>
 
+let g:portkey_autostart = 1
+let g:portkey_adaptive_mappings = 1
+
+" change to your preferred localleader key "
+let g:maplocalleader =  ';'
+
+let g:autotagStartMethod='fork' "https://github.com/craigemery/vim-autotag/issues/34
+
 " FZF
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
 
-set secure
-
 let g:fzf_preview_highlighter = "highlight -o xterm256 --line-number --style rdark --force"
 let g:fzf_preview_window = 'right:60%'
+let g:fzf_layout = { 'window':  { 'width': 0.9, 'height': 0.9, 'relative': v:true } }
 
 command! -bang -nargs=? -complete=dir Files
     \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
 
 command! -bang -nargs=* Find
   \ call fzf#vim#grep(
-  \   'rg --column --line-number --no-heading --color=always '.shellescape(expand('<cword>')), 1,
+  \   'rg -g "!node_modules" --column --line-number --no-heading --color=always '.shellescape(expand('<cword>')), 1,
   \   fzf#vim#with_preview(),
   \   <bang>0)
 
@@ -251,9 +284,15 @@ nmap <leader>bs :Bsplit<cr>
 nmap <leader>br :e config/routes.rb<cr>
 
 " Open in GitHub
-nmap <leader>G :Gbrowse master:%<cr>
+"nmap <leader>G :GBrowse master:%<cr>
 " Open PR in Github from Git Blame
+"nmap <space>G :.GBrowse master:%<cr>
+
 nmap <space>G :Gbrowse <c-r><c-w><cr>
+" Open PR on line
+nmap <leader>G :.GBrowse <cr>
+" Close Git Blame with q
+autocmd FileType fugitiveblame nmap <buffer> q gq
 
 " Sort
 vnoremap <leader>S :sort<cr>
@@ -274,8 +313,8 @@ nmap <space>c yiw
 autocmd BufWritePre * :%s/\s\+$//e
 autocmd VimResized * :wincmd =
 au VimEnter * highlight clear SignColumn
-imap <expr> <tab> emmet#expandAbbrIntelligent("\<tab>")
-let g:user_emmet_leader_key=","
+"imap <expr> <tab> emmet#expandAbbrIntelligent("\<tab>")
+"let g:user_emmet_leader_key=","
 
 " Rename Current File
 function! RenameFile()
@@ -325,7 +364,6 @@ xmap ga <Plug>(EasyAlign)
 nmap ga <Plug>(EasyAlign)"
 
 let g:test#strategy = 'vimux'
-"let test#project_root = '~/Projects/tc-www/app/javascript_apps/'
 let g:test#javascript#jest#file_pattern = '.*\.spec\.js'
 
 nmap <space>t :w<cr> :TestNearest<CR>
@@ -372,7 +410,7 @@ map <leader>jp :Files public<CR>
 map <leader>jt :Files spec<CR>
 map <leader>jC :Files config<CR>
 map <leader>jD :Files db<CR>
-map <leader>jf :Files spec/support/factories<CR>
+map <leader>jf :Files spec/factories<CR>
 map <leader>jd :Files %%<CR>
 
 map <leader>aa :Find <c-r>=expand("<cword>")<cr><cr>
@@ -380,7 +418,7 @@ map <leader>sa :Rag <c-r>=expand("<cword>")<cr> app/<cr>
 map <leader>sm :Rag <c-r>=expand("<cword>")<cr> app/models<cr>
 map <leader>sc :Rag <c-r>=expand("<cword>")<cr> app/controllers<cr>
 map <leader>sv :Rag <c-r>=expand("<cword>")<cr> app/views<cr>
-map <leader>sh :Rag <c-r>=expand("<cword>")<cr> app/helpers<cr>
+map <leader>sh :Rag <c-r>=expand("<cword>")<cr> --handlebars<cr>
 map <leader>ss :Rag <c-r>=expand("<cword>")<cr> app/services<cr>
 map <leader>sw :Rag <c-r>=expand("<cword>")<cr> app/workers<cr>
 map <leader>sr :Rag <c-r>=expand("<cword>")<cr> app/javascript_apps/<cr>
@@ -391,7 +429,7 @@ map <leader>sp :Rag <c-r>=expand("<cword>")<cr> public/<cr>
 map <leader>st :Rag <c-r>=expand("<cword>")<cr> spec/<cr>
 map <leader>sC :Rag <c-r>=expand("<cword>")<cr> config/<cr>
 map <leader>sD :Rag <c-r>=expand("<cword>")<cr> db/<cr>
-map <leader>sf :Rag <c-r>=expand("<cword>")<cr> spec/support/factories<cr>
+map <leader>sf :Rag <c-r>=expand("<cword>")<cr> spec/factories<cr>
 map <leader>sd :Rag <c-r>=expand("<cword>")<cr> %%<cr>
 
 map <space>aa :Rag -i<space>
@@ -399,7 +437,6 @@ map <space>sa :Rag -i <space>app/<C-Left><Left>
 map <space>sm :Rag -i <space>app/models/<C-Left><Left>
 map <space>sc :Rag -i <space>app/controllers/<C-Left><Left>
 map <space>sv :Rag -i <space>app/views/<C-Left><Left>
-map <space>sh :Rag -i <space>app/helpers/<C-Left><Left>
 map <space>ss :Rag -i <space>app/services/<C-Left><Left>
 map <space>sw :Rag -i <space>app/workers/<C-Left><Left>
 map <space>sr :Rag -i <space>app/javascript_apps/<C-Left><Left>
@@ -410,5 +447,6 @@ map <space>sp :Rag -i <space>public/<C-Left><Left>
 map <space>st :Rag -i <space>spec/<C-Left><Left>
 map <space>sC :Rag -i <space>config/<C-Left><Left>
 map <space>sD :Rag -i <space>db/<C-Left><Left>
-map <space>sf :Rag -i <space>spec/support/factories/<C-Left><Left>
+map <space>sf :Rag -i <space>spec/factories/<C-Left><Left>
+map <space>sh :Rag -i --handlebars<space>
 map <space>sd :Rag -i <space>%%<C-Left><Left>
