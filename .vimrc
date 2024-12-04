@@ -15,14 +15,12 @@ Plugin 'christoomey/vim-tmux-runner'
 Plugin 'craigemery/vim-autotag'
 Plugin 'edkolev/tmuxline.vim'
 Plugin 'elixir-editors/vim-elixir'
-"Plugin 'epmatsw/ag.vim'
 Plugin 'godlygeek/tabular'
 Plugin 'janko-m/vim-test'
 Plugin 'jiangmiao/auto-pairs'
 Plugin 'junegunn/vim-easy-align'
 Plugin 'leafgarland/typescript-vim'
 Plugin 'majutsushi/tagbar'
-Plugin 'mattn/emmet-vim'
 Plugin 'mxw/vim-jsx'
 Plugin 'neomake/neomake'
 Plugin 'ngmy/vim-rubocop'
@@ -52,12 +50,19 @@ Plugin 'vim-ruby/vim-ruby'
 Plugin 'vim-syntastic/syntastic'
 Plugin 'vimwiki/vimwiki'
 Plugin 'junegunn/fzf', { 'do': { -> fzf#install()  }  }
+Plugin 'junegunn/fzf.vim'
 Plugin 'easymotion/vim-easymotion'
 Plugin 'MaxMEllon/vim-jsx-pretty'
-Plugin 'junegunn/fzf.vim'
 Plugin 'haishanh/night-owl.vim'
-"Plugin 'neoclide/coc.nvim', {'branch': 'release'}
-"Plugin 'wincent/command-t'
+Plugin 'slim-template/vim-slim.git'
+Plugin 'neoclide/coc.nvim', { 'branch': 'release' }
+Plugin 'jparise/vim-graphql'
+Plugin 'Yggdroot/indentLine'
+Plugin 'tpope/vim-dadbod'
+Plugin 'noprompt/vim-yardoc'
+Plugin 'jesseduffield/lazygit'
+Plugin 'RRethy/vim-hexokinase', {'do': 'make hexokinase'}
+"Plugin 'puremourning/vimspector'
 Plugin 'prettier/vim-prettier', {
   \ 'do': 'yarn install',
   \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss', 'json', 'graphql', 'markdown', 'vue', 'yaml', 'html'] }
@@ -65,15 +70,20 @@ Plugin 'prettier/vim-prettier', {
 call vundle#end()
 filetype plugin indent on
 
+" Map Leader
+let mapleader = ","
+
+colorscheme night-owl
+
 " Prettier
 let g:prettier#autoformat = 0
 autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md PrettierAsync
 
 " Syntax
 syntax on
+"syntax enable
 set t_Co=256
 set background=dark
-
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
 set statusline+=%*
@@ -89,9 +99,6 @@ map  N <Plug>(easymotion-prev)
 
 let g:EasyMotion_smartcase = 1
 
-" Map Leader
-let mapleader = ","
-
 " Airline
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 0
@@ -99,10 +106,12 @@ let g:jsx_ext_required = 0
 
 let g:airline_theme='luna'
 "let g:airline_theme='wombat'
+
 let &t_AB="\e[48;5;%dm"
 let &t_AF="\e[38;5;%dm"
-let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
-let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
+" Cursor is line in insert mode
+let &t_SI = "\e[6 q"
+let &t_EI = "\e[2 q"
 
 let g:CommandTTraverseSCM='pwd'
 
@@ -131,7 +140,7 @@ set scrolloff=4
 set noesckeys
 set ttimeout
 set ttimeoutlen=1
-set relativenumber
+"set relativenumber
 set path=$PWD/**
 set exrc
 
@@ -144,9 +153,6 @@ set exrc
   let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
   set termguicolors
 endif
-
-syntax enable
-colorscheme night-owl
 
 " Exclude included files with vim autocomplete
 set complete-=i
@@ -182,13 +188,34 @@ imap ppb <%= binding.pry %>
 nmap ppb ywippb
 
 " Deleting
-nnoremap <leader>d "_d
-xnoremap <leader>d "_d
-xnoremap <leader>p "_dP
+nnoremap <leader>dd "_dd
+"xnoremap <leader>d "_dd
+nnoremap <leader>D "_d$
 
-" Yank all
-imap ya y$
-nmap ya y$
+" Replace double quote with single quote
+noremap <leader>" :%s/"/'/g<cr>
+
+" Replace single quote with double quote
+noremap <leader>' :%s/'/"/g<cr>
+
+" coc key bindings
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? coc#_select_confirm() :
+      \ coc#expandableOrJumpable() ?
+      \ "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+let g:coc_snippet_next = '<tab>'
+
+"" Yank all
+"imap ya y$
+"nmap ya y$
 
 " Search directory
 nnoremap <leader>ta :ta<SPACE>
@@ -217,18 +244,20 @@ map <leader>m :CommandTMRU<CR>
 " FZF
 let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
+let g:syntastic_ruby_mri_exec = '/Users/fnowinski/.rbenv/shims/ruby'
 
 set secure
 
 let g:fzf_preview_highlighter = "highlight -o xterm256 --line-number --style rdark --force"
-let g:fzf_preview_window = 'right:60%'
+let g:fzf_preview_window = 'right:65%'
+let g:fzf_layout = { 'window':  { 'width': 1.0, 'height': 1.0, 'relative': v:true } }
 
 command! -bang -nargs=? -complete=dir Files
     \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
 
 command! -bang -nargs=* Find
   \ call fzf#vim#grep(
-  \   'rg --column --line-number --no-heading --color=always '.shellescape(expand('<cword>')), 1,
+  \   'rg -g "!node_modules" --column --line-number --no-heading --color=always '.shellescape(expand('<cword>')), 1,
   \   fzf#vim#with_preview(),
   \   <bang>0)
 
@@ -250,24 +279,23 @@ nmap <leader>bs :Bsplit<cr>
 " Open routes
 nmap <leader>br :e config/routes.rb<cr>
 
-" Open in GitHub
-" nmap <leader>G :Gbrowse master:%<cr>
-" Open PR in Github from Git Blame
-" nmap <space>G :Gbrowse <c-r><c-w><cr>
-
-nmap <space>G :Gbrowse <c-r><c-w><cr>
-" Open PR on line
+" Open Git
 nmap <leader>G :.GBrowse <cr>
+" Close Git Blame with q
+autocmd FileType fugitiveblame nmap <buffer> q gq
 
 " Sort
 vnoremap <leader>S :sort<cr>
+
+" Open DB
+nnoremap <leader>db :DB $DATABASE_URL<CR>
 
 " Split windows
 map <leader>- :split<cr>
 map <leader>\ :vsplit<cr>
 
 " Prettier
-map <leader>p :PrettierAsync<cr>
+"map <leader>p :PrettierAsync<cr>
 
 " Replace word under cursor with buffer
 nmap <space>r viw"0p
@@ -275,23 +303,13 @@ nmap <space>r viw"0p
 " Copy word under cursor into buffer
 nmap <space>c yiw
 
+" Copy till end
+"nnoremap cp y$
+
 autocmd BufWritePre * :%s/\s\+$//e
 autocmd VimResized * :wincmd =
 au VimEnter * highlight clear SignColumn
-imap <expr> <tab> emmet#expandAbbrIntelligent("\<tab>")
-let g:user_emmet_leader_key=","
 
-" Rename Current File
-function! RenameFile()
-  let old_name = expand('%')
-  let new_name = input('New file name: ', expand('%'), 'file')
-  if new_name != '' && new_name != old_name
-    exec ':saveas ' . new_name
-    exec ':silent !rm ' . old_name
-    redraw!
-  endif
-endfunction
-map <leader>n :call RenameFile()<cr>
 
 " Promote Variable to Rspec Let
 function! PromoteToLet()
@@ -337,6 +355,9 @@ nmap <space>T :w<cr> :TestFile<CR>
 nmap <space>l :w<cr> :TestLast<CR>
 nmap <space>s :w<cr> :TestSuite<CR>
 
+" Indent lines
+nnoremap <leader>il :IndentLinesToggle<cr>
+
 " Italics
 hi htmlArg gui=italic
 hi Comment gui=italic
@@ -354,8 +375,24 @@ let test#ruby#rspec#options = {
 set wildignore+=*/node_modules/*
 set wildignore+=*/bower_components/*"
 
+" Rubocop
+nmap <leader>r :RuboCop -a<cr>
+
 " Navigation
 nnoremap <c-p> :Files<CR>
+
+" Remove binding.pry
+function! RemoveBindingPry()
+  " Run the prybaby command on the current file
+  call system('prybaby -r ' . expand('%'))
+
+  edit!
+  " Print a message
+  echo "Removed bindings"
+endfunction
+
+" Map the shortcut 'rb' to call the RemoveBindingPry function
+nnoremap <leader>rb :call RemoveBindingPry()<CR>
 
 map <leader>jg :GFiles<CR>
 map <leader>m :Buffers <CR>
@@ -376,7 +413,8 @@ map <leader>jp :Files public<CR>
 map <leader>jt :Files spec<CR>
 map <leader>jC :Files config<CR>
 map <leader>jD :Files db<CR>
-map <leader>jf :Files spec/support/factories<CR>
+map <leader>jf :Files spec/factories<CR>
+map <leader>jF :Files app/forms<CR>
 map <leader>jd :Files %%<CR>
 
 map <leader>aa :Find <c-r>=expand("<cword>")<cr><cr>
@@ -395,8 +433,9 @@ map <leader>sp :Rag <c-r>=expand("<cword>")<cr> public/<cr>
 map <leader>st :Rag <c-r>=expand("<cword>")<cr> spec/<cr>
 map <leader>sC :Rag <c-r>=expand("<cword>")<cr> config/<cr>
 map <leader>sD :Rag <c-r>=expand("<cword>")<cr> db/<cr>
-map <leader>sf :Rag <c-r>=expand("<cword>")<cr> spec/support/factories<cr>
+map <leader>sf :Rag <c-r>=expand("<cword>")<cr> spec/factories<cr>
 map <leader>sd :Rag <c-r>=expand("<cword>")<cr> %%<cr>
+map <leader>sF :Rag app/forms<CR>
 
 map <space>aa :Rag -i<space>
 map <space>sa :Rag -i <space>app/<C-Left><Left>
@@ -414,5 +453,28 @@ map <space>sp :Rag -i <space>public/<C-Left><Left>
 map <space>st :Rag -i <space>spec/<C-Left><Left>
 map <space>sC :Rag -i <space>config/<C-Left><Left>
 map <space>sD :Rag -i <space>db/<C-Left><Left>
-map <space>sf :Rag -i <space>spec/support/factories/<C-Left><Left>
+map <space>sf :Rag -i <space>spec/factories/<C-Left><Left>
 map <space>sd :Rag -i <space>%%<C-Left><Left>
+map <space>sF :Rag -i <space>app/forms<C-Left><Left>
+
+let g:rails_projections = {
+      \ "app/controllers/*_controller.rb": {
+      \   "test": [
+      \     "spec/controllers/{}_controller_spec.rb",
+      \     "spec/requests/{}_spec.rb"
+      \   ],
+      \ },
+      \ "spec/requests/*_spec.rb": {
+      \   "alternate": [
+      \     "app/controllers/{}_controller.rb",
+      \   ],
+      \ }}
+
+" Copy util end of line
+nnoremap <space>S y$
+
+" Replace word without adding to cursor
+nnoremap <Leader>rw ciw
+
+nnoremap <Leader>p :keepregister put =<CR>
+

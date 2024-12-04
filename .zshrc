@@ -1,94 +1,71 @@
-export ZSH="/Users/franknowinski/.oh-my-zsh"
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+export ZSH="/Users/fnowinski/.oh-my-zsh"
+export PATH="$HOME/.rbenv/bin:$PATH"
+export PATH="$PATH:/Users/fnowinski/.path_scripts"
+export PATH="/Users/fnowinski/Library/Python/3.9/bin:$PATH"
+export PATH="/opt/homebrew/opt/node@14/bin:$PATH"
+# export PATH="/Users/fnowinski/.nvm/versions/node/v18.16.0/bin:$PATH"
+export PATH="/opt/homebrew/opt/postgresql@15/bin:$PATH"
+export PATH="/opt/homebrew/opt/icu4c@76/bin:$PATH"
+export PATH="/opt/homebrew/opt/icu4c@76/sbin:$PATH"
 export PATH="/usr/local/sbin:$PATH"
-export EDITOR='vim'
+# export SSL_CERT_FILE="/Users/fnowinski/.rbenv/versions/3.1.3/openssl/ssl/cert.pem"
+# export ODDS_API_KEY="b8c9a9168cc35e003f3a8799d382cedd"
+
+eval "$(rbenv init - zsh)"
+#
+export EDITOR='nvim'
 
 bindkey -e
-eval "$(rbenv init -)"
 
-ZSH_THEME=cobalt2
-ZSH_CUSTOM=$HOME/dotfiles
-ZSH_DISABLE_COMPFIX=true
+# ZSH_THEME=cobalt2
+# ZSH_CUSTOM=$HOME/dotfiles
+# ZSH_DISABLE_COMPFIX=true
 
 HYPHEN_INSENSITIVE="true"
 HIST_STAMPS="mm/dd/yyyy"
+HISTFILE=$HOME/.zhistory
+SAVEHIST=1000
+HISTSIZE=999
+setopt share_history
+setopt hist_expire_dups_first
+setopt hist_ignore_dups
+setopt hist_verify
 
-#SOURCE_FILES+=(~/dotfiles/aliases)
-#for file in $SOURCE_FILES[@]; do
-  #source "$file"
-#done
+source ~/dotfiles/aliases.zsh
+source ~/dotfiles/work.zsh
 
 plugins=(
   git
   z
-  forgit # Add forgit to /.oh-my-zsh/plugins/
+  zsh-autosuggestions
+  # forgit # Add forgit to /.oh-my-zsh/plugins/
 )
 
-alias master='git co master && git pull origin master && git fetch'
-alias integration='git co integration && git pull origin integration && git fetch'
-alias amend='git commit --amend --no-edit'
-alias push='git push -f origin HEAD'
-alias gst="git status"
-alias diff="git diff"
-alias gco="git co"
-alias gadd="git add ."
-alias gcont="git rebase --continue"
-alias gpush="git push origin head"
-alias gpull="git pull origin --rebase"
-alias ci="git ci -m "
-alias grebase="git rebase -i origin/master"
-alias migrate="bundle exec rake db:migrate"
-alias tdev="tmux a -t dev"
-alias tkill="killall tmux"
+function terminate() {
+  local port=$1
+  local pids=($(lsof -t -i ":$port"))
 
-alias be="bundle exec"
-alias rc="bundle exec rails c"
-alias rs="bundle exec rails s"
-alias rspec='be rspec'
-alias gstash='git stash save'
-alias glist='git stash list'
-alias gpop='git stash pop'
-alias lss="ls -ltr"
-alias al="ls -al"
-alias ssh='TERM=xterm-256color ssh'
-alias Z='fg'
-
-regex () {
-  gawk 'match($0,/'$1'/, ary) {print ary['${2:-'0'}']}'
-}
-
-makepr() {
-  if [ ! -d .git ] ;
-    then echo "ERROR: This isnt a git directory" && return false;
-  fi
-  pwd | regex "tc-www" | grep "tc-www" | grep -v grep &> /dev/null
-  in_tcw=$?
-  pwd | regex "studio" | grep "studio" | grep -v grep &> /dev/null
-  in_studio=$?
-  pwd | regex "graph" | grep "graph" | grep -v grep &> /dev/null
-  in_graph=$?
-  if [[ $in_tcw == 0 ]] || [[ $in_studio == 0 ]] || [[ $in_graph == 0  ]]; then
-    compare="/compare/integration...";
+  if [[ ${#pids[@]} -gt 0 ]]; then
+    echo "Killing processes on port $port"
+    for pid in "${pids[@]}"; do
+      kill -9 $pid
+    done
   else
-    compare="/compare/master...";
+    echo "No processes found on port $port"
   fi
-  expand="?expand=1"
-  branch=`git branch | grep \* | cut -d ' ' -f2-`
-  github_url="https://github.com/frankNowinski"
-  url=$github_url$(git_repo)$compare$branch$expand
-  open $url
 }
-
-source $ZSH/oh-my-zsh.sh
-
-# Preferred editor for local and remote sessions
-#if [[ -n $SSH_CONNECTION ]]; then
-  #export TERM=xterm
-#fi
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 bindkey ',m' fzf-file-widget
 
-export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!.git/*"'
+export FZF_DEFAULT_COMMAND='rg --files --no-ignore --hidden --follow --glob "!{node_modules/*,.git/*,vendor/*,assets/*,coverage/*,tmp/*,public/*}"'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :500 {}'"
 export FZF_ALT_C_COMMAND='fd --type d . --color=never'
@@ -103,8 +80,6 @@ export FZF_DEFAULT_OPTS='
   --color=preview-fg:#87ff00
 '
 
-export PATH="$HOME/.rbenv/bin:$PATH"
-
 # Find in file
 fif() {
   if [ ! "$#" -gt 0 ]; then echo "Need a string to search for!"; return 1; fi
@@ -116,3 +91,21 @@ fif() {
 cob() {
   git co $(git branch | fzf)
 }
+
+getmain() {
+  main
+  git co -
+}
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+#
+# ##### For gem install, may need to comment out 12/3
+# export CXXFLAGS="-I/Library/Developer/CommandLineTools/SDKs/MacOSX15.0.sdk/usr/include/c++/v1"
+#
+source $ZSH/oh-my-zsh.sh
+source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
