@@ -15,6 +15,7 @@ export PATH="/opt/homebrew/opt/postgresql@15/bin:$PATH"
 export PATH="/opt/homebrew/opt/icu4c@76/bin:$PATH"
 export PATH="/opt/homebrew/opt/icu4c@76/sbin:$PATH"
 export PATH="/usr/local/sbin:$PATH"
+export PATH=$HOME/.fly/bin:$PATH
 # export SSL_CERT_FILE="/Users/fnowinski/.rbenv/versions/3.1.3/openssl/ssl/cert.pem"
 # export ODDS_API_KEY="b8c9a9168cc35e003f3a8799d382cedd"
 
@@ -73,13 +74,26 @@ export FZF_DEFAULT_OPTS='
   --height 75% --multi
   --bind ctrl-f:page-down,ctrl-b:page-up
   --bind ctrl-p:abort
-  --color=fg:-1,bg:-1,hl:#5fd7ff
-  --color=fg+:-1,bg+:-1,hl+:#79e7fa
+  --color=fg:#CBE0F0,bg:#011628,hl:#5fd7ff
+  --color=fg+:#CBE0F0,bg+:#143652,hl+:#79e7fa
   --color=info:#87ff00,prompt:#ff76ff,pointer:#ff76ff
   --color=marker:#87ff00,spinner:#00c5c7,header:#00c5c7
-  --color=preview-fg:#87ff00
+  --color=preview-fg:#87ff00,preview-bg:#011628
 '
+# Old 12/6/24
+# export FZF_DEFAULT_OPTS='
+#   --height 75% --multi
+#   --bind ctrl-f:page-down,ctrl-b:page-up
+#   --bind ctrl-p:abort
+#   --color=fg:-1,bg:-1,hl:#5fd7ff
+#   --color=fg+:-1,bg+:-1,hl+:#79e7fa
+#   --color=info:#87ff00,prompt:#ff76ff,pointer:#ff76ff
+#   --color=marker:#87ff00,spinner:#00c5c7,header:#00c5c7
+#   --color=preview-fg:#87ff00
+# '
+# --- setup fzf theme ---
 
+export BAT_THEME=tokyonight_night
 # Find in file
 fif() {
   if [ ! "$#" -gt 0 ]; then echo "Need a string to search for!"; return 1; fi
