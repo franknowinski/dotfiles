@@ -104,7 +104,7 @@ let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 0
 let g:jsx_ext_required = 0
 
-let g:airline_theme='luna'
+"let g:airline_theme='deus_theme'
 "let g:airline_theme='wombat'
 
 let &t_AB="\e[48;5;%dm"
