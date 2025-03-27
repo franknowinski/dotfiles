@@ -12,6 +12,8 @@ alias ssh='TERM=xterm-256color ssh'
 alias tcon="n ~/dotfiles/.tmux.conf" # Tmux config
 alias vcon="n ~/dotfiles/.vimrc" # Vim config
 alias ncon="n ~/.config/nvim" # Nvim config
+alias nchat="n ~/.config/nvim/lua/fnowinski/plugins/copilotchat.lua"
+alias lsp="n ~/.config/nvim/lua/fnowinski/plugins/lsp/lspconfig.lua"
 alias work="n ~/dotfiles/work.zsh"
 alias zcon="n ~/dotfiles/.zshrc" # Zsh config
 alias dotfiles"n ~/dotfiles"
@@ -44,7 +46,9 @@ alias rc="bundle exec rails c"
 alias rs="bundle exec rails s"
 alias rspec='be rspec'
 alias tdev="tmux a -t dev"
-alias tkill="killall tmux"
+alias sports="tmux a -t sports"
+alias fuego="tmux a -t fuego"
+alias tkill="killall -9 tmux"
 alias reset="git co origin/main"
 alias side="bundle exec sidekiq"
 alias arubo='git diff --name-only --diff-filter=M | grep '\.rb$' | xargs rubocop'
@@ -53,3 +57,8 @@ alias n="nvim"
 alias cl="git co ."
 alias ztime='time zsh -i -c exit'
 alias wcon='n ~/.wezterm.lua'
+alias pc='fly ssh console "-C bundle exec rails c"'
+alias pssh='fly ssh console "-C bundle exec rails c"'
+alias ddlog="tail -f /opt/datadog-agent/logs/agent.log"
+alias when="whenever --update-crontab --set environment='development'"
+alias cron="crontab -l"

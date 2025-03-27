@@ -93,7 +93,6 @@ export FZF_DEFAULT_OPTS='
 # '
 # --- setup fzf theme ---
 
-export BAT_THEME=tokyonight_night
 # Find in file
 fif() {
   if [ ! "$#" -gt 0 ]; then echo "Need a string to search for!"; return 1; fi
