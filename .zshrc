@@ -5,29 +5,19 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-export ZSH="/Users/fnowinski/.oh-my-zsh"
+# typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
+
+export ZSH="/Users/frankie/.oh-my-zsh"
 export PATH="$HOME/.rbenv/bin:$PATH"
-export PATH="$PATH:/Users/fnowinski/.path_scripts"
-export PATH="/Users/fnowinski/Library/Python/3.9/bin:$PATH"
-export PATH="/opt/homebrew/opt/node@14/bin:$PATH"
-# export PATH="/Users/fnowinski/.nvm/versions/node/v18.16.0/bin:$PATH"
-export PATH="/opt/homebrew/opt/postgresql@15/bin:$PATH"
-export PATH="/opt/homebrew/opt/icu4c@76/bin:$PATH"
-export PATH="/opt/homebrew/opt/icu4c@76/sbin:$PATH"
-export PATH="/usr/local/sbin:$PATH"
+export PATH="$PATH:/Users/frankie/.path_scripts"
 export PATH=$HOME/.fly/bin:$PATH
-# export SSL_CERT_FILE="/Users/fnowinski/.rbenv/versions/3.1.3/openssl/ssl/cert.pem"
-# export ODDS_API_KEY="b8c9a9168cc35e003f3a8799d382cedd"
+export PATH="/opt/homebrew/opt/postgresql@17/bin:$PATH"
 
 eval "$(rbenv init - zsh)"
-#
+
 export EDITOR='nvim'
 
 bindkey -e
-
-# ZSH_THEME=cobalt2
-# ZSH_CUSTOM=$HOME/dotfiles
-# ZSH_DISABLE_COMPFIX=true
 
 HYPHEN_INSENSITIVE="true"
 HIST_STAMPS="mm/dd/yyyy"
@@ -46,7 +36,6 @@ plugins=(
   git
   z
   zsh-autosuggestions
-  # forgit # Add forgit to /.oh-my-zsh/plugins/
 )
 
 function terminate() {
@@ -80,18 +69,6 @@ export FZF_DEFAULT_OPTS='
   --color=marker:#87ff00,spinner:#00c5c7,header:#00c5c7
   --color=preview-fg:#87ff00,preview-bg:#011628
 '
-# Old 12/6/24
-# export FZF_DEFAULT_OPTS='
-#   --height 75% --multi
-#   --bind ctrl-f:page-down,ctrl-b:page-up
-#   --bind ctrl-p:abort
-#   --color=fg:-1,bg:-1,hl:#5fd7ff
-#   --color=fg+:-1,bg+:-1,hl+:#79e7fa
-#   --color=info:#87ff00,prompt:#ff76ff,pointer:#ff76ff
-#   --color=marker:#87ff00,spinner:#00c5c7,header:#00c5c7
-#   --color=preview-fg:#87ff00
-# '
-# --- setup fzf theme ---
 
 # Find in file
 fif() {
@@ -113,9 +90,6 @@ getmain() {
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-#
-# ##### For gem install, may need to comment out 12/3
-# export CXXFLAGS="-I/Library/Developer/CommandLineTools/SDKs/MacOSX15.0.sdk/usr/include/c++/v1"
 #
 source $ZSH/oh-my-zsh.sh
 source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme

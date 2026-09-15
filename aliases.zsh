@@ -8,7 +8,7 @@ alias ignore="n ~/.gitignore"
 alias lss="ls -ltr"
 alias xcon="n ~/tmux-dev.sh" # Tmux script
 alias rz="source ~/.zshrc"
-alias ssh='TERM=xterm-256color ssh'
+# alias ssh='TERM=xterm-256color ssh'
 alias tcon="n ~/dotfiles/.tmux.conf" # Tmux config
 alias vcon="n ~/dotfiles/.vimrc" # Vim config
 alias ncon="n ~/.config/nvim" # Nvim config
@@ -16,11 +16,13 @@ alias nchat="n ~/.config/nvim/lua/fnowinski/plugins/copilotchat.lua"
 alias lsp="n ~/.config/nvim/lua/fnowinski/plugins/lsp/lspconfig.lua"
 alias work="n ~/dotfiles/work.zsh"
 alias zcon="n ~/dotfiles/.zshrc" # Zsh config
+alias gcon="n ~/.config/ghostty/config"
 alias dotfiles"n ~/dotfiles"
 alias mkscript="n ~/.path_scripts/makepr"
 alias mkstart="n ~/.path_scripts/start"
 alias scripts="cd ~/.path_scripts"
 alias lg='lazygit'
+alias ca="claude --model sonnet"
 
 alias amend='git commit --amend --no-edit'
 alias be="bundle exec"
@@ -57,8 +59,19 @@ alias n="nvim"
 alias cl="git co ."
 alias ztime='time zsh -i -c exit'
 alias wcon='n ~/.wezterm.lua'
-alias pc='fly ssh console "-C bundle exec rails c"'
+# alias pc='fly ssh console "-C bundle exec rails c"'
 alias pssh='fly ssh console "-C bundle exec rails c"'
 alias ddlog="tail -f /opt/datadog-agent/logs/agent.log"
 alias when="whenever --update-crontab --set environment='development'"
 alias cron="crontab -l"
+alias pip='pip3'
+alias pal="z pickup-pal"
+alias half="z halfsies"
+alias five="z fivepicks"
+alias nlog="tail -f ~/.local/state/nvim/lsp.log"
+alias fcon="fly ssh console"
+alias fstart="fly machines start 1852d56c622708"
+
+alias sonnet="claude --model sonnet"
+alias ca="claude --model opus"
+alias oc='ollama run qwen3-coder:30b'

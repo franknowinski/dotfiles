@@ -1,0 +1,22 @@
+[user]
+	name = Frank Nowinski
+	email = frankpnowinski@gmail.com
+[alias]
+	st = status
+	ci = commit
+	co = checkout
+	br = branch
+	unstage = reset HEAD --
+	last = log -1 HEAD
+[core]
+	pager = delta
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	features = side-by-side line-numbers decorations
+[delta "decorations"]
+	commit-decoration-style = bold yellow box
+[safe]
+	directory = /opt/homebrew
+	directory = /opt/homebrew/Library/Taps/homebrew/homebrew-core
+	directory = /opt/homebrew/Library/Taps/homebrew/homebrew-cask
