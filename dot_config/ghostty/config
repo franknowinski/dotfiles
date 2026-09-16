@@ -1,0 +1,33 @@
+background = #011423
+foreground = #cbe0f0
+cursor-color = #47ff9c
+selection-background = #03325a
+selection-foreground = #cbe0f0
+
+# Palette (Ansi 0-15)
+palette = 0=#214969
+palette = 1=#e52e2e
+#palette = 1=#f38ba8
+
+palette = 2=#04ffb1
+#palette = 2=#a6e3a1
+
+palette = 3=#ffe073
+palette = 4=#0fc5ed
+palette = 5=#a277ff
+palette = 6=#24eaf7
+palette = 7=#24eaf7
+palette = 8=#214969
+palette = 9=#e52e2e
+palette = 10=#04ffb1
+palette = 11=#ffe073
+palette = 12=#0fc5ed
+palette = 13=#a277ff
+palette = 14=#24eaf7
+palette = 15=#24eaf7
+
+# Font (from your iTerm config)
+font-family = MesloLGS NF
+font-size = 15
+
+window-decoration = false

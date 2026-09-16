@@ -10,6 +10,7 @@
 	last = log -1 HEAD
 [core]
 	pager = delta
+	excludesfile = ~/.gitignore_global
 [interactive]
 	diffFilter = delta --color-only
 [delta]

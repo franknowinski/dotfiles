@@ -1,28 +1,21 @@
 alias Z="fg"
 alias al="ls -al"
-alias aliases="n ~/dotfiles/aliases.zsh"
+alias aliases="chezmoi edit ~/.aliases.zsh"
 alias cat="bat"
 alias ctags="ctags --recurse=yes --exclude=.git --exclude=BUILD --exclude=.svn --exclude=db --exclude=node_modules --exclude=log --exclude=assets"
 alias down="cd ~/Downloads"
-alias ignore="n ~/.gitignore"
+alias ignore="n ~/.gitignore_global"
 alias lss="ls -ltr"
-alias xcon="n ~/tmux-dev.sh" # Tmux script
+alias xcon="chezmoi edit ~/bin/tmux-dev.sh" # Tmux script
 alias rz="source ~/.zshrc"
-# alias ssh='TERM=xterm-256color ssh'
-alias tcon="n ~/dotfiles/.tmux.conf" # Tmux config
-alias vcon="n ~/dotfiles/.vimrc" # Vim config
+alias tcon="chezmoi edit ~/.tmux.conf" # Tmux config
 alias ncon="n ~/.config/nvim" # Nvim config
 alias nchat="n ~/.config/nvim/lua/fnowinski/plugins/copilotchat.lua"
 alias lsp="n ~/.config/nvim/lua/fnowinski/plugins/lsp/lspconfig.lua"
-alias work="n ~/dotfiles/work.zsh"
-alias zcon="n ~/dotfiles/.zshrc" # Zsh config
-alias gcon="n ~/.config/ghostty/config"
-alias dotfiles"n ~/dotfiles"
-alias mkscript="n ~/.path_scripts/makepr"
-alias mkstart="n ~/.path_scripts/start"
-alias scripts="cd ~/.path_scripts"
+alias zcon="chezmoi edit ~/.zshrc" # Zsh config
+alias gcon="chezmoi edit ~/.config/ghostty/config"
+alias dots="chezmoi cd"
 alias lg='lazygit'
-alias ca="claude --model sonnet"
 
 alias amend='git commit --amend --no-edit'
 alias be="bundle exec"
@@ -58,10 +51,7 @@ alias rubo='bundle exec rubocop -a'
 alias n="nvim"
 alias cl="git co ."
 alias ztime='time zsh -i -c exit'
-alias wcon='n ~/.wezterm.lua'
-# alias pc='fly ssh console "-C bundle exec rails c"'
 alias pssh='fly ssh console "-C bundle exec rails c"'
-alias ddlog="tail -f /opt/datadog-agent/logs/agent.log"
 alias when="whenever --update-crontab --set environment='development'"
 alias cron="crontab -l"
 alias pip='pip3'
