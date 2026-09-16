@@ -14,8 +14,17 @@ alias nchat="n ~/.config/nvim/lua/fnowinski/plugins/copilotchat.lua"
 alias lsp="n ~/.config/nvim/lua/fnowinski/plugins/lsp/lspconfig.lua"
 alias zcon="chezmoi edit ~/.zshrc" # Zsh config
 alias gcon="chezmoi edit ~/.config/ghostty/config"
-alias dots="chezmoi cd"
 alias lg='lazygit'
+
+# chezmoi: edit the source, then apply it to $HOME
+alias dots="chezmoi cd"          # cd into ~/dotfiles
+alias dapply="chezmoi apply -v"  # write the source files into $HOME
+alias ddiff="chezmoi diff"       # what apply would change
+alias dstatus="chezmoi status"   # short list of what's out of sync
+alias dedit="chezmoi edit"       # dedit ~/.zshrc
+alias dadd="chezmoi add"         # start tracking a file: dadd ~/.foo
+alias dsave="chezmoi re-add"     # capture edits made directly in $HOME
+alias dpull="chezmoi update -v"  # git pull + apply
 
 alias amend='git commit --amend --no-edit'
 alias be="bundle exec"

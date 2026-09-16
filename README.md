@@ -32,25 +32,57 @@ directory; `chezmoi apply` writes real files into `$HOME` (no symlinks).
    op read "op://Personal/fivepicks secrets/master.key/RAILS_MASTER_KEY" > config/master.key
    ```
 
+7. Per project: `bundle install`, then `bin/rails db:prepare`.
+8. Open nvim once so lazy.nvim installs the plugins.
+
+Not automatable: license keys (Rectangle Pro, BetterTouchTool, Alfred) and the
+accessibility permissions for Rectangle, BetterTouchTool and Logi Options+.
+
+Hand-carry from the old machine (in no repo): `~/vimwiki/`, `~/.z`, the SSH key
+or the 1Password SSH agent, `~/.claude/` and `~/.claude.json`, and
+`~/Projects/*.md`.
+
 ## Day to day
 
-| task | command |
-|---|---|
-| edit a config | `chezmoi edit ~/.zshrc` then `chezmoi apply` |
-| capture an edit made in `$HOME` | `chezmoi re-add` |
-| track a new file | `chezmoi add ~/.foo` |
-| go to this repo | `chezmoi cd` (aliased to `dots`) |
-| preview changes | `chezmoi diff` |
-| pull + apply elsewhere | `chezmoi update` |
+| task | command | alias |
+|---|---|---|
+| edit a config, then apply | `chezmoi edit ~/.zshrc` | `dedit` |
+| apply the source to `$HOME` | `chezmoi apply -v` | `dapply` |
+| preview what apply would change | `chezmoi diff` | `ddiff` |
+| short list of what's out of sync | `chezmoi status` | `dstatus` |
+| capture an edit made in `$HOME` | `chezmoi re-add` | `dsave` |
+| track a new file | `chezmoi add ~/.foo` | `dadd` |
+| pull + apply on another machine | `chezmoi update -v` | `dpull` |
+| go to this repo | `chezmoi cd` | `dots` |
 
 Editing this repo does not change `$HOME` until you `apply`. `chezmoi diff`
 shows the drift.
 
 ## Naming
 
-`dot_` → leading dot, `private_` → mode 600, `executable_` → +x, `.tmpl` → run
-through the template engine, `run_once_` / `run_onchange_` → setup scripts in
-`.chezmoiscripts/`. So `dot_zshrc` becomes `~/.zshrc`.
+A source file can't start with a dot, so a prefix says what to create:
+
+| prefix | meaning |
+|---|---|
+| `dot_` | leading dot: `dot_zshrc` → `~/.zshrc` |
+| `executable_` | set the +x bit |
+| `private_` | mode 600 |
+| `.tmpl` | run through the template engine first |
+
+Setup scripts live in `.chezmoiscripts/` and are named
+`run_<when>_<before/after>_<order>-<name>.sh`. Taking
+`run_once_after_50-macos-defaults.sh` apart:
+
+- `run_once_` — runs one time ever on a machine; chezmoi remembers it by the
+  script's hash. `run_onchange_` instead re-runs whenever the script's contents
+  change, which is how the Brewfile script re-runs when the Brewfile changes.
+- `after` — run after the config files are written (`before` runs first).
+- `50` — sort order, so Homebrew (10) runs before Ruby (30).
+- `macos-defaults` — just a name, for humans.
+
+The scripts: 10 Homebrew · 20 oh-my-zsh · 30 Ruby 4.0.6 + fzf key bindings ·
+40 tmux TPM plugins · 50 macOS defaults (key repeat, Finder, Dock) ·
+60 `brew bundle`.
 
 ## Layout
 
