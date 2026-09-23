@@ -19,6 +19,7 @@ brew "bat"
 
 # Editor + git
 brew "neovim"
+brew "tree-sitter-cli" # nvim-treesitter compiles parsers with it
 brew "git-delta"
 brew "lazygit"
 brew "gh"
