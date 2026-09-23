@@ -31,6 +31,7 @@ brew "libyaml"
 
 # Languages, databases, services
 brew "node"
+brew "python@3.12" # Mason needs 3.10+ for black and isort; macOS ships 3.9
 brew "go"
 brew "postgresql@17"
 brew "libpq"
