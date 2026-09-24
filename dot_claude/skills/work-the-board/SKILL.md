@@ -151,8 +151,16 @@ single resources.
    user's own Chrome, which holds their staging session (`localStorage.fivepicks_token`): open the
    staging URL + path, set the viewport to **375px wide**, and capture the part of the page the
    report names. Save it as a PNG in the scratchpad.
-   - Signed-in page but no signed-in browser: fallback is minting a session **on staging only** —
-     `fly ssh console --app fivepicks-staging -C "bin/rails runner 'puts Session.issue!(User.find_by!(email: \"<user email>\")).last'"` — then set `localStorage.fivepicks_token` to it and reload. **Never run this, or anything that writes, against production (`sportslook`).**
+   - **Every fivepicks page needs a sign-in** — signed out, `/` shows only the Google button. Do
+     not trust an agent's `SIGNED_IN: no`.
+   - **Chrome extension not connected** (no `mcp__claude-in-chrome__*` tools; don't nag the user
+     to install it): mint a session **on staging only** into a scratchpad file —
+     `fly ssh console --app fivepicks-staging -C "bin/rails runner 'puts Session.issue!(User.find_by!(email: \"<user email>\")).last'" | tail -1 > <scratch>/staging_token`
+     — then `node ~/.claude/skills/work-the-board/shot.mjs <staging url+path> <out.png> <scratch>/staging_token`,
+     which drives headless Chrome at 375px with that token in `localStorage`. Crop a tall capture
+     to the part that matters (`sips -c <h> 750 --cropOffset 0 0`) and **look at it before
+     attaching** — a sign-in page is not a screenshot of the change. **Never mint a session, or
+     run anything that writes, against production (`sportslook`).**
    - No browser available at all → say so on the card and in the report; do not fake a screenshot.
 4. **Card** — attach to the card (Linear MCP):
    - the staging URL as a link titled `Staging (PR #N)`;
