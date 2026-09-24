@@ -175,5 +175,13 @@ DEV-9   Stopped    tests red in home_sort.spec.js — see card comment
 Staging now shows PR #66 (DEV-11).  Re-run "work the board" after merging to start wave 2.
 ```
 
-Add each agent's NOTES and unmet criteria underneath, briefly. The worktrees stay until their PR
+Under each card, a **Verify** line the user can act on from a phone: the full staging URL of the
+page to open, and what to look for (from the card's "See it working" and the agent's SCREENSHOT
+line). Give one even for a card with no visible change — say what should look *the same* and how
+to compare it (e.g. open the same page on production side by side). Only when nothing is
+checkable in the app (a log line, a Sentry event, a spec-only change) say where it can be seen
+instead — a Sentry search, `/api/v1/health`, the PR's Testing section. Remind the user only one PR
+is on staging at a time, and which one it is now.
+
+Then add each agent's NOTES and unmet criteria, briefly. The worktrees stay until their PR
 merges; the next run removes them.
