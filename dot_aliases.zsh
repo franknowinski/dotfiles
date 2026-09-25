@@ -74,3 +74,6 @@ alias fstart="fly machines start 1852d56c622708"
 alias sonnet="claude --model sonnet"
 alias ca="claude --model opus"
 alias oc='ollama run qwen3-coder:30b'
+
+# Tailscale CLI ships inside the app bundle
+alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
