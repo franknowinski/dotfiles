@@ -1,6 +1,6 @@
 ---
 name: work-the-board
-description: Turn the Linear board into running work — read the current repo's agent-ready Todo cards in Personal Projects (DEV), plan waves of up to three cards that touch no file in common, show the plan and wait for a go, then build each card in its own background worktree agent through to a PR, review each PR cold with review-pr (one fix round on blocking findings), and put each PR on a phone preview on the Mac (bin/preview, over Tailscale) with a phone-width screenshot on its card. Use when the user says "work the board", "run the board", "start the ready cards", or asks to pick up several DEV cards at once.
+description: Turn the Linear board into running work — read the current repo's agent-ready Todo cards in Personal Projects (DEV), plan waves of up to two cards that touch no file in common, show the plan and wait for a go, then build each card in its own background worktree agent through to a PR, review each PR cold with review-pr (one fix round on blocking findings), and put each PR on a phone preview on the Mac (bin/preview, over Tailscale) with a phone-width screenshot on its card. Use when the user says "work the board", "run the board", "start the ready cards", or asks to pick up several DEV cards at once.
 ---
 
 # Work the board
@@ -12,11 +12,12 @@ merges have unblocked. It **never merges**: the user tries the preview on their 
 "merge".
 
 Roles: **you** (this session) are the dispatcher — you plan, launch, and handle everything that is
-a shared resource (the two preview slots, the screenshot browser). **Card agents** build one card
+a shared resource (the one preview slot, the screenshot browser). **Card agents** build one card
 each, in their own worktree, and stop at an open PR.
 
 Previews run on the user's always-on Mac Studio: `bin/preview` starts a branch's own dev servers
-and publishes them over Tailscale on `:8443` or `:10000` (`:443` is the user's live checkout). There
+and publishes them over Tailscale on `:8443`, one preview at a time (`:443` is the user's live
+checkout, `:10000` the arb-app dashboard). There
 is no hosted preview app and no fallback to one. If a repo has no `bin/preview`, skip the preview
 steps and say so.
 
@@ -63,8 +64,9 @@ they edit the same section.
 
 - Order candidates by priority (Urgent → Low, None last), then oldest first.
 - Greedily fill wave 1: add a card if it shares no predicted file with a card already in it.
-  **Cap: three cards.** Everything left over goes to wave 2, 3… under the same rule — shown for
-  information only. Only wave 1 launches; later waves wait for a re-run, because merges change
+  **Cap: two cards** — one being reviewed while the other builds; more only queues behind the
+  user and goes stale against main. Everything left over goes to wave 2, 3… under the same rule —
+  shown for information only. Only wave 1 launches; later waves wait for a re-run, because merges change
   the code they would branch from.
 - A medium-confidence card whose prediction is a near miss with another (same directory, same
   view tree) goes in a later wave rather than gambling.
@@ -127,7 +129,7 @@ Card (full text):
 6. Ship: read <repo>/.claude/skills/ship/SKILL.md and follow it — commit, push, open the PR with
    `Linear: [<DEV-N>](<card url>)` as its first line, move the card to In Review and attach the
    PR link. Do not merge. Do not deploy or start a preview — the dispatcher does that, because
-   there are only two preview slots.
+   there is only one preview slot.
 7. Finish with a report in exactly this shape, and nothing after it:
      CARD: <DEV-N>
      PR: <url>            (or NONE, and why)
@@ -151,7 +153,7 @@ completion arrives as a notification.
 
 ## 6. As each agent finishes
 
-Handle completions **one at a time, in the order they arrive** — the preview slots and the
+Handle completions **one at a time, in the order they arrive** — the preview slot and the
 screenshot browser are shared.
 
 1. Read its report. If `PR: NONE` or a check failed, leave the card where the agent left it, add a
@@ -181,7 +183,7 @@ screenshot browser are shared.
    not boot — the output ends with its log) → comment it on the card, leave the card In Review
    without a preview link, and say so in the notification. There is no fallback host.
    Post the link on the PR: `gh pr comment <N> --body "Preview: <url> (<sha>)"`. If the output
-   says it evicted another preview, comment on **that** card too: `Preview for PR #M was stopped to
+   says it stopped another preview, comment on **that** card too: `Preview for PR #M was stopped to
    make room for PR #N; run bin/preview DEV-X (or say "preview DEV-X") to bring it back.`
 3. **Screenshot** — when the report names a page. Every fivepicks page needs a sign-in (signed
    out, `/` shows only the Google button — do not trust an agent's `SIGNED_IN: no`), and the
@@ -266,9 +268,9 @@ page to open, and what to look for (from the card's "See it working" and the age
 line). Give one even for a card with no visible change — say what should look *the same* and how
 to compare it (e.g. open the same page on production side by side). Only when nothing is
 checkable in the app (a log line, a Sentry event, a spec-only change) say where it can be seen
-instead — a Sentry search, `/api/v1/health`, the PR's Testing section. Two previews run at a
-time; a third card's preview evicts the oldest, so say which cards currently hold `:8443` and
-`:10000` (`bin/preview list`).
+instead — a Sentry search, `/api/v1/health`, the PR's Testing section. One preview runs at a
+time and each new one replaces the last, so say which card currently holds `:8443` (`bin/preview
+list`) — the others' Verify lines need `bin/preview DEV-X` first.
 
 Then add each agent's NOTES and unmet criteria, briefly. The worktrees (and their previews) stay
 until their PR merges; the next run stops and removes them.
