@@ -2,7 +2,6 @@
 # See what's missing: brew bundle check --file=~/dotfiles/Brewfile
 
 tap "romkatv/powerlevel10k"
-tap "stripe/stripe-cli"
 
 # Shell
 brew "zsh-autosuggestions"
@@ -41,7 +40,6 @@ brew "redis"
 # Deploy + infra
 brew "flyctl"
 brew "cloudflared" # public URL for a local server: cloudflared tunnel --url http://localhost:3000
-brew "stripe/stripe-cli/stripe"
 
 # Misc
 brew "ffmpeg"
@@ -61,9 +59,9 @@ cask "google-chrome"
 cask "logi-options+"
 cask "rectangle-pro"
 cask "signal"
-cask "tailscale-app"
 cask "spotify"
 cask "steam"
+cask "tailscale-app"
 cask "font-meslo-lg-nerd-font"
 
 # App Store (sign into the App Store first)

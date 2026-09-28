@@ -16,8 +16,8 @@ a shared resource (the one preview slot, the screenshot browser). **Card agents*
 each, in their own worktree, and stop at an open PR.
 
 Previews run on the user's always-on Mac Studio: `bin/preview` starts a branch's own dev servers
-and publishes them over Tailscale on `:8443`, one preview at a time (`:443` is the user's live
-checkout, `:10000` the arb-app dashboard). There
+and publishes them over Tailscale on `:8443`, one preview at a time (`:443` is kritic,
+`:10000` the hedgehog dashboard). There
 is no hosted preview app and no fallback to one. If a repo has no `bin/preview`, skip the preview
 steps and say so.
 
