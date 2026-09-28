@@ -1,0 +1,6 @@
+# chezmoi init turns this into ~/.config/chezmoi/chezmoi.toml, so plain
+# `chezmoi` commands (and the d* aliases) find this repo at ~/dotfiles.
+sourceDir = {{ .chezmoi.sourceDir | quote }}
+
+[edit]
+    apply = true

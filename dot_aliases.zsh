@@ -67,6 +67,7 @@ alias pip='pip3'
 alias pal="z pickup-pal"
 alias half="z halfsies"
 alias five="z fivepicks"
+alias kri="z kritic"
 alias nlog="tail -f ~/.local/state/nvim/lsp.log"
 alias fcon="fly ssh console"
 alias fstart="fly machines start 1852d56c622708"
