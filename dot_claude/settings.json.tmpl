@@ -11,14 +11,14 @@
     "environment": {{ $f := joinPath .chezmoi.homeDir ".config/chezmoi/claude-environment.json" }}{{ if stat $f }}{{ include $f | trim }}{{ else }}[]{{ end }},
     "allow": [
       "$defaults",
-      "Bash(bin/preview:*) in ~/Projects/fivepicks \u2014 routine local preview workflow per CLAUDE.md",
-      "Bash(rake games:sync_season:*) in ~/Projects/fivepicks \u2014 routine schedule sync task",
-      "Bash(rake pool:ingest:*) in ~/Projects/fivepicks \u2014 routine backfill task documented as safe/idempotent"
+      "Bash(bin/preview:*) in ~/Projects/fivepicks — routine local preview workflow per CLAUDE.md",
+      "Bash(rake games:sync_season:*) in ~/Projects/fivepicks — routine schedule sync task",
+      "Bash(rake pool:ingest:*) in ~/Projects/fivepicks — routine backfill task documented as safe/idempotent"
     ],
     "soft_deny": [
       "$defaults",
-      "Bash(fly secrets set:* --app sportslook) \u2014 production secret writes to the live Fly app",
-      "Bash(fly volumes:* --app sportslook) \u2014 production volume operations (data loss risk per CLAUDE.md backup/restore warnings)"
+      "Bash(fly secrets set:* --app sportslook) — production secret writes to the live Fly app",
+      "Bash(fly volumes:* --app sportslook) — production volume operations (data loss risk per CLAUDE.md backup/restore warnings)"
     ]
   }
 }
