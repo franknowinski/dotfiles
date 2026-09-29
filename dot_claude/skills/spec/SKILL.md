@@ -64,7 +64,13 @@ Per-type focus:
 
 Title: imperative and specific ("Show kickoff time on pick cards", not "Kickoff time").
 
-All four templates share one skeleton, so the builder always finds the same sections:
+**Two readers, two layers.** The user skims the board on a phone; the builder reads every word.
+So every card except an Idea opens with a **TL;DR** of exactly three one-line bullets (What / Why /
+Done when), in plain words with no file names, code or jargon, then a `---` divider. Everything
+below the divider is the builder's brief and may be as long as it needs to be. If you can't write
+the TL;DR in three short lines, the card is probably two cards.
+
+Below the divider, all templates share one skeleton, so the builder always finds the same sections:
 **Goal → type-specific sections → Out of scope → Context → Acceptance criteria → Verification →
 Open questions.** For Context, link to a CLAUDE.md section or file rather than pasting it, and
 leave out file-by-file descriptions the builder can read for themselves.
@@ -72,6 +78,13 @@ leave out file-by-file descriptions the builder can read for themselves.
 ### Feature / Improvement
 
 ```markdown
+## TL;DR
+- **What:** <the change, in one plain line>
+- **Why:** <the problem it fixes, in one plain line>
+- **Done when:** <the one check a human would look at>
+
+---
+
 ## Goal
 <What changes for the user, and why. 1–2 sentences.>
 
@@ -104,6 +117,13 @@ leave out file-by-file descriptions the builder can read for themselves.
 ### Bug
 
 ```markdown
+## TL;DR
+- **What:** <the change, in one plain line>
+- **Why:** <the problem it fixes, in one plain line>
+- **Done when:** <the one check a human would look at>
+
+---
+
 ## Goal
 <Restore the intended behaviour. One sentence.>
 
@@ -140,6 +160,13 @@ leave out file-by-file descriptions the builder can read for themselves.
 ### Chore
 
 ```markdown
+## TL;DR
+- **What:** <the change, in one plain line>
+- **Why:** <the problem it fixes, in one plain line>
+- **Done when:** <the one check a human would look at>
+
+---
+
 ## Goal
 <What gets cleaner, and why now.>
 
@@ -178,7 +205,8 @@ leave out file-by-file descriptions the builder can read for themselves.
 
 ## 4. Create it
 
-Before creating, show the full draft card, then create it in team **Personal Projects**
+Before creating, show the draft card (the TL;DR in full; the brief can be summarised if the user
+was part of the grilling), then create it in team **Personal Projects**
 (`DEV`) with the Linear MCP:
 
 - Labels: the type label, plus the Repo label when there is one.
