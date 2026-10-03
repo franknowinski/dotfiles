@@ -44,6 +44,11 @@ Interview in **rounds**:
   something you could find. Put only **decisions** to them.
 - If a question needs something to react to (a layout, or how an interaction feels), stop
   grilling it. Put it in Open questions, or suggest a throwaway prototype.
+- **Propose the verification yourself.** As soon as the shape of the change is clear, work out
+  how the builder can prove it works (the exact test command, a new test that fails first, a
+  CLI run and its expected output, a phone-width screenshot of the page) and put it to the user
+  as a recommendation, not an open question. Prefer checks the builder can run alone; a step
+  only the user can do (tap it on the phone) goes under "See it working".
 - You're done when nothing is left silently assumed. Summarise the decisions and get the user's
   confirmation before writing.
 

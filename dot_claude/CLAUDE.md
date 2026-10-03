@@ -1,6 +1,8 @@
 # Preferences
 
 - Keep explanations concise: lead with the answer, skip filler and restating the question, use short bullets over long paragraphs, and only go into detail when asked.
+- Verify your own work without being asked: when there's an obvious check (tests, running the command, a phone-width screenshot of a UI change), run it and show the evidence. When the right check isn't obvious, propose one in a line before building, so the user isn't the one finding the bugs.
+- UI changes: the user looks at everything on an iPhone, so screenshot the changed page with `node ~/.claude/bin/phone_shot.mjs <url> <out.png> [--full] [--local KEY=FILE]` (iPhone-width emulation; `--local` puts a sign-in token in localStorage), look at the image, and fix anything clipped, overlapping or cramped before calling it done. It exits 1 and names the culprits if the page scrolls sideways. Never judge layout from `chrome --headless --window-size`: it renders a desktop window and clips the right edge.
 
 # Home Mac Studio
 

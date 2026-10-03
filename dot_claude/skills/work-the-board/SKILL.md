@@ -193,11 +193,13 @@ screenshot browser are shared.
    ```bash
    cd <worktree> && DATABASE_URL=sqlite3:<worktree>/tmp/preview/development.sqlite3 \
      bin/rails runner 'puts Session.issue!(User.find_by!(email: "<user email>")).last' | tail -1 > <scratch>/preview_token
-   node ~/.claude/skills/work-the-board/shot.mjs <preview url+path> <out.png> <scratch>/preview_token
+   node ~/.claude/bin/phone_shot.mjs <preview url+path> <out.png> --full --local fivepicks_token=<scratch>/preview_token
    ```
 
-   `shot.mjs` drives headless Chrome at 375px with that token in `localStorage`. Crop a tall
-   capture to the part that matters (`sips -c <h> 750 --cropOffset 0 0`) and **look at it before
+   `phone_shot.mjs` drives headless Chrome at iPhone width (390px) with that token in
+   `localStorage`, and exits 1 naming the culprits if the page scrolls sideways (put that on the
+   card as a finding). Crop a tall capture to the part that matters
+   (`sips -c <h> 780 --cropOffset 0 0`) and **look at it before
    attaching** — a sign-in page is not a screenshot of the change. **Never mint a session, or run
    anything that writes, against production (`sportslook`).** No browser available at all → say so
    on the card and in the report; do not fake a screenshot.
