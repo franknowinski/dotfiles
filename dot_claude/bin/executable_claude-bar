@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# claude-bar — switch the tmux bar + Claude status line between looks.
+#
+#   claude-bar apply            load the saved theme (run from ~/.tmux.conf)
+#   claude-bar set <theme>      chips | powerline | edge
+#   claude-bar toggle           cycle to the next one (prefix b)
+#   claude-bar uptime           "13d 19h" for the status bar
+set -u
+TMUX_BIN=$(command -v tmux || echo /opt/homebrew/bin/tmux)
+THEME_FILE=~/.claude/bar-theme
+THEMES=(chips powerline edge)
+
+load() {
+  local theme=$1
+  "$TMUX_BIN" set -g @claude_bar_theme "$theme"
+  "$TMUX_BIN" source-file ~/.config/tmux/claude-bar/"$theme".conf
+  # Two status rows: a blank spacer, then the bar, so it doesn't touch the pane above.
+  local fmt
+  fmt=$("$TMUX_BIN" show -gv @claude_status_format 2>/dev/null)
+  if [ -z "$fmt" ]; then
+    fmt=$("$TMUX_BIN" show -gv 'status-format[0]')
+    "$TMUX_BIN" set -g @claude_status_format "$fmt"
+  fi
+  "$TMUX_BIN" set -g status 2
+  "$TMUX_BIN" set -g 'status-format[0]' ''
+  "$TMUX_BIN" set -g 'status-format[1]' "$fmt"
+  ~/.claude/bin/claude-tmux refresh
+}
+
+case ${1:-} in
+apply) load "$(cat "$THEME_FILE" 2>/dev/null || echo chips)" ;;
+set)
+  [ -f ~/.config/tmux/claude-bar/"${2:-}".conf ] || { echo "themes: ${THEMES[*]}" >&2; exit 1; }
+  echo "$2" >"$THEME_FILE"
+  load "$2"
+  "$TMUX_BIN" display-message "bar theme: $2"
+  ;;
+toggle)
+  cur=$(cat "$THEME_FILE" 2>/dev/null) next=${THEMES[0]}
+  for i in "${!THEMES[@]}"; do
+    [ "${THEMES[$i]}" = "$cur" ] && next=${THEMES[$(((i + 1) % ${#THEMES[@]}))]}
+  done
+  "$0" set "$next"
+  ;;
+uptime)
+  boot=$(sysctl -n kern.boottime | sed 's/^{ sec = \([0-9]*\).*/\1/')
+  s=$(($(date +%s) - boot))
+  printf '%dd %dh' $((s / 86400)) $((s % 86400 / 3600))
+  ;;
+*) sed -n '2,7p' "$0" | sed 's/^# \{0,1\}//' ;;
+esac

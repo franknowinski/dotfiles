@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+# claude-tmux — traffic-light status for Claude Code sessions running in tmux.
+#
+#   red     ask   waiting on a permission / question
+#   red     done  replied; you haven't looked yet
+#   yellow  busy  thinking or running tools
+#   green   idle  nothing pending
+#
+# Usage:
+#   claude-tmux hook          Claude Code hook (reads hook JSON on stdin)
+#   claude-tmux seen <pane>   tmux focus hook: a viewed reply turns green
+#   claude-tmux refresh       recount after panes/sessions close
+#   claude-tmux pick          fzf popup of every session, most urgent first
+set -u
+TMUX_BIN=$(command -v tmux || echo /opt/homebrew/bin/tmux)
+t() { "$TMUX_BIN" "$@" 2>/dev/null; }
+
+RED='#f38ba8' YELLOW='#f9e2af' GREEN='#a6e3a1' DIM='#6c7086'
+
+rank() { case ${1:-} in ask) echo 4 ;; done) echo 3 ;; busy) echo 2 ;; idle) echo 1 ;; *) echo 0 ;; esac; }
+
+# One line per Claude pane: rank<TAB>pane_id<TAB>pretty label (macOS bash 3.2 can't
+# parse a case inside $(...), so this lives in a function).
+list_sessions() {
+  local r y g d n st id loc name path c label
+  r=$(esc $RED) y=$(esc $YELLOW) g=$(esc $GREEN) d=$(esc $DIM) n=$'\033[0m'
+  t list-panes -a -F '#{@claude_state}#{pane_id}#{session_name}:#{window_index}#{window_name}#{pane_current_path}' |
+    while IFS=$'\x1f' read -r st id loc name path; do
+      [ -n "$st" ] || continue
+      case $st in ask) c=$r label='needs permission' ;; done) c=$r label='replied' ;; busy) c=$y label='working' ;; *) c=$g label='idle' ;; esac
+      printf '%s\t%s\t%s%-22s%s %s%-10s %-28s %s%s%s\n' "$(rank "$st")" "$id" "$c" "$name" "$n" "$d" "$loc" "${path/#$HOME/~}" "$c" "$label" "$n"
+    done
+}
+esc() { printf '\033[38;2;%d;%d;%dm' "0x${1:1:2}" "0x${1:3:2}" "0x${1:5:2}"; }
+
+# Right side of the tmux bar: session counts, then CPU and uptime, in the
+# look picked by claude-bar (chips or powerline).
+right_side() {
+  local LCAP=$'\xee\x82\xb6' RCAP=$'\xee\x82\xb4' LARROW=$'\xee\x82\xb2' LTHIN=$'\xee\x82\xb3' CHIP=$'\xef\x8b\x9b'
+  local bg='#011628' cpu='#(~/.tmux/plugins/tmux-cpu/scripts/cpu_percentage.sh)' up='#(~/.claude/bin/claude-bar uptime)'
+  local segs=() n
+  [ "$1" -gt 0 ] && segs+=("#3b1d2b|$RED|$1 waiting")
+  [ "$2" -gt 0 ] && segs+=("#352f1f|$YELLOW|$2 working")
+  [ "$3" -gt 0 ] && segs+=("#13302b|$GREEN|$3 idle")
+  local theme
+  theme=$(t show -gv @claude_bar_theme)
+  if [ "$theme" = edge ]; then
+    local out=''
+    [ "$1" -gt 0 ] && out+="#[fg=$RED]▎#[fg=#cdd6f4]$1 waiting  "
+    [ "$2" -gt 0 ] && out+="#[fg=$YELLOW]▎#[fg=#cdd6f4]$2 working  "
+    [ "$3" -gt 0 ] && out+="#[fg=$GREEN]▎#[fg=#cdd6f4]$3 idle  "
+    printf '%s' "$out    #[fg=#7f849c]$cpu · $up "
+  elif [ "$theme" = powerline ]; then
+    segs+=("#1d3b5e|#a6adc8|$CHIP $cpu" "#1d3b5e|#a6adc8|󰔟 $up")
+    local prev=$bg out='' tint fg text
+    for n in "${segs[@]}"; do
+      IFS='|' read -r tint fg text <<<"$n"
+      if [ "$tint" = "$prev" ]; then out+="#[fg=#2c4a6e,bg=$tint]$LTHIN"; else out+="#[fg=$tint,bg=$prev]$LARROW"; fi
+      out+="#[fg=$fg,bg=$tint,bold] $text #[nobold]"
+      prev=$tint
+    done
+    printf '%s' "$out"
+  else
+    segs+=("#0d2a45|#a6adc8|$CHIP $cpu" "#0d2a45|#a6adc8|󰔟 $up")
+    local out='' tint fg text
+    for n in "${segs[@]}"; do
+      IFS='|' read -r tint fg text <<<"$n"
+      out+="#[fg=$tint,bg=$bg]$LCAP#[fg=$fg,bg=$tint]$text#[fg=$tint,bg=$bg]$RCAP "
+    done
+    printf '%s' "$out"
+  fi
+}
+
+# Recompute the window badge (most urgent pane wins) and the bar's right side.
+refresh() {
+  local win=${1:-} best='' s
+  [ -n "$win" ] && for s in $(t list-panes -t "$win" -F '#{@claude_state}'); do
+    [ "$(rank "$s")" -gt "$(rank "$best")" ] && best=$s
+  done
+  if [ -z "$win" ]; then :; elif [ -n "$best" ]; then t set -w -t "$win" @claude_state "$best"; else t set -wu -t "$win" @claude_state; fi
+
+  local red=0 yellow=0 green=0
+  for s in $(t list-panes -a -F '#{@claude_state}'); do
+    case $s in ask | done) red=$((red + 1)) ;; busy) yellow=$((yellow + 1)) ;; idle) green=$((green + 1)) ;; esac
+  done
+  t set -g @claude_right "$(right_side $red $yellow $green)"
+
+  local c
+  for c in $(t list-clients -F '#{client_name}'); do t refresh-client -t "$c" -S; done
+}
+
+set_state() {
+  local pane=$1 new=$2
+  [ "$(t display -p -t "$pane" '#{@claude_state}')" = "$new" ] && return
+  if [ -n "$new" ]; then t set -p -t "$pane" @claude_state "$new"; else t set -pu -t "$pane" @claude_state; fi
+  refresh "$(t display -p -t "$pane" '#{window_id}')"
+}
+
+# True when a focused terminal is showing this pane right now.
+watched() {
+  t list-clients -F '#{pane_id} #{client_flags}' | grep -q "^$1 .*focused"
+}
+
+case ${1:-} in
+hook)
+  [ -n "${TMUX_PANE:-}" ] || exit 0
+  input=$(cat)
+  event=$(jq -r '.hook_event_name // empty' <<<"$input")
+  case $event in
+  SessionStart) set_state "$TMUX_PANE" idle ;;
+  UserPromptSubmit | PreToolUse | PostToolUse) set_state "$TMUX_PANE" busy ;;
+  PermissionRequest) set_state "$TMUX_PANE" ask ;;
+  Notification)
+    case $(jq -r '.notification_type // empty' <<<"$input") in
+    permission_prompt | elicitation_dialog) set_state "$TMUX_PANE" ask ;;
+    esac ;;
+  Stop) if watched "$TMUX_PANE"; then set_state "$TMUX_PANE" idle; else set_state "$TMUX_PANE" done; fi ;;
+  SessionEnd) set_state "$TMUX_PANE" '' ;;
+  esac
+  ;;
+seen)
+  [ "$(t display -p -t "${2:-}" '#{@claude_state}')" = done ] && set_state "$2" idle
+  ;;
+refresh) refresh ;;
+pick)
+  choice=$(list_sessions | sort -t$'\t' -k1,1nr | cut -f2- |
+    fzf --ansi --delimiter=$'\t' --with-nth=2 --no-sort --reverse --no-info \
+      --prompt='  ' --pointer='▌' --gutter=' ' --border=none --header='Claude sessions' \
+      --color='bg+:#313244,fg+:#cdd6f4,pointer:#cba6f7,prompt:#cba6f7,header:#6c7086,gutter:-1' \
+      --preview="$TMUX_BIN capture-pane -ep -t {1} | grep -v '^\s*\$' | tail -n \$FZF_PREVIEW_LINES" \
+      --preview-window='down,60%,border-top')
+  [ -n "$choice" ] || exit 0
+  pane=${choice%%$'\t'*}
+  t switch-client -t "$pane"; t select-window -t "$pane"; t select-pane -t "$pane"
+  ;;
+*) sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//' ;;
+esac
+exit 0
